@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">TriviaQuizApplication</string>
+    <string name="trivia_text">Trivia</string>
+</resources>
