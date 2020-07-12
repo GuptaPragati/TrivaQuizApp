@@ -10,17 +10,27 @@
     <TextView
             android:text="scores"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/score" android:layout_marginBottom="16dp"
+            android:layout_height="wrap_content" android:id="@+id/currentScore" android:layout_marginBottom="16dp"
             app:layout_constraintBottom_toTopOf="@+id/quesCard" app:layout_constraintEnd_toStartOf="@+id/quesCounter"
-            app:layout_constraintStart_toStartOf="parent" app:layout_constraintHorizontal_bias="0.085"
-            android:textSize="18sp"/>
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintHorizontal_bias="0.089"
+            android:textSize="18sp" android:textStyle="bold" app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.574"/>
+    <TextView
+            android:text="Highest Score:0"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp" android:id="@+id/highScore"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/currentScore"
+            android:textColor="#F44336" android:textSize="14sp" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/quesCard" app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintVertical_bias="0.865" android:textStyle="bold"/>
     <TextView
             android:text="TextView"
             android:layout_width="76dp"
             android:layout_height="25dp" android:id="@+id/quesCounter"
             app:layout_constraintBottom_toTopOf="@+id/quesCard" app:layout_constraintTop_toBottomOf="@+id/triviaText"
             app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintHorizontal_bias="0.931" app:layout_constraintVertical_bias="0.0"/>
+            app:layout_constraintHorizontal_bias="0.931" app:layout_constraintVertical_bias="0.64"/>
     <LinearLayout
             android:orientation="horizontal"
             android:layout_width="365dp"
@@ -33,22 +43,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" app:srcCompat="@android:drawable/ic_media_previous"
                 android:id="@+id/prev" android:layout_weight="1"
-              />
+        />
         <Button
                 android:text="False"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" android:id="@+id/FALSE" android:layout_weight="1"
-                />
+        />
         <Button
                 android:text="True"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" android:id="@+id/TRUE" android:layout_weight="1"
-             />
+        />
         <ImageButton
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" app:srcCompat="@android:drawable/ic_media_next"
                 android:id="@+id/next" android:layout_weight="1"
-               />
+        />
     </LinearLayout>
     <androidx.cardview.widget.CardView
             android:layout_width="397dp"
@@ -73,8 +83,8 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.048" android:id="@+id/triviaText" android:textSize="30sp"
+            app:layout_constraintVertical_bias="0.0" android:id="@+id/triviaText" android:textSize="30sp"
             android:textColor="#3F51B5" android:textStyle="bold|italic" app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintHorizontal_bias="0.67"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -16,10 +16,12 @@ import androidx.cardview.widget.CardView;
 import com.example.triviaquizapplication.data.HandleQuestionBankAsysnCall;
 import com.example.triviaquizapplication.data.QuestionBank;
 import com.example.triviaquizapplication.model.Question;
+import com.example.triviaquizapplication.model.Score;
+import util.Prefs;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     CardView cardView;
@@ -27,13 +29,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ImageButton nextButton;
     Button True;
     TextView quesCounter;
-    TextView totalScore;
+    TextView currentScore;
+    TextView highScore;
     TextView ques;
     Button False;
     boolean flag=false;
-    int score=0;
+    private int scoreCounter =0;
+    private Prefs prefs;
+    private Score score;
     List<Question> questionList;
-    int currentQuestion=0;
+    private int currentQuestion=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,39 +47,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         prevButton=findViewById(R.id.prev);
         nextButton=findViewById(R.id.next);
         quesCounter=findViewById(R.id.quesCounter);
-        totalScore=findViewById(R.id.score);
+        currentScore =findViewById(R.id.currentScore);
+        highScore =findViewById(R.id.highScore);
         ques=findViewById(R.id.quesns);
         True=findViewById(R.id.TRUE);
         False=findViewById(R.id.FALSE);
+        score=new Score();
+        prefs=new Prefs(this);
+        currentQuestion=prefs.getQuesState();
         flag=false;
         questionList=new QuestionBank().getQuestions(new HandleQuestionBankAsysnCall() {
             @Override
             public void processfinished(ArrayList<Question> questionArrayList) {
               //  Log.d("Json response","Json response is:"+questionArrayList);
-                quesCounter.setText(currentQuestion+" /"+questionList.size());
-               ques.setText(questionArrayList.get(currentQuestion).getQuestion());
+                quesCounter.setText(MessageFormat.format("{0} / {1}",currentQuestion,questionList.size()));
+                ques.setText(questionArrayList.get(currentQuestion).getQuestion());
             }
         });
-        getHighestScoreFromLastRun();
+        currentScore.setText("Current Score: "+score.getScore());
+        highScore.setText("Highest Score: "+prefs.getHighScore());
         cardView.setOnClickListener(this);
         prevButton.setOnClickListener(this);
         nextButton.setOnClickListener(this);
         True.setOnClickListener(this);
         False.setOnClickListener(this);
-    }
-
-    private void getHighestScoreFromLastRun() {
-        //if (Objects.nonNull(sharedPreferences)) {
-        SharedPreferences sharedPreferences=getSharedPreferences("Highscore",MODE_PRIVATE);
-            String highScore = sharedPreferences.getString("score", "Heighest Score:" + score);
-            totalScore.setText(highScore);
-        //}
-    }
-    private void setHighestScoreFromLastRun() {
-        SharedPreferences sharedPreferences=getSharedPreferences("Highscore",MODE_PRIVATE);
-        SharedPreferences.Editor editor=sharedPreferences.edit();
-        editor.putString("score","Heighest Score:"+score);
-        editor.apply();
     }
 
     @Override
@@ -86,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     checkAnswer(true);
                     flag=true;
                     changeQuestion();
+                    onClick(findViewById(R.id.next));
                 }
                 break;
             case R.id.FALSE:
@@ -93,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     checkAnswer(false);
                     flag=true;
                     changeQuestion();
+                    onClick(findViewById(R.id.next));
                 }
                 break;
             case R.id.next:
@@ -108,9 +106,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void addPoints()
+    {
+        scoreCounter = scoreCounter +1;
+        score.setScore(scoreCounter);
+        currentScore.setText("Current Score: "+ score.getScore());
+    }
+
+    private void deductPoints()
+    {
+        if (scoreCounter>0) {
+            scoreCounter = scoreCounter -1;
+            score.setScore(scoreCounter);
+            currentScore.setText(MessageFormat.format("Current Score: {0}", score.getScore()));
+        }
+     /*   else
+        {
+            scoreCounter=0;
+            score.setScore(scoreCounter);
+            currentScore.setText("Current Score:" + score.getScore());
+        }*/
+    }
+
     private void changeQuestion() {
         ques.setText(questionList.get(currentQuestion).getQuestion());
-        quesCounter.setText(currentQuestion+" / "+questionList.size());
+        quesCounter.setText(MessageFormat.format("{0} / {1}",currentQuestion,questionList.size()));
     }
 
     private void checkAnswer(Boolean userAnswer) {
@@ -119,16 +139,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             Toast.makeText(this,"Correct answer",Toast.LENGTH_SHORT).show();
             fadeAnimation();
-            score=score+1;
-            totalScore.setText("Heighest Score:"+score);
-            setHighestScoreFromLastRun();
+            addPoints();
         }
         else
         {Toast.makeText(this,"Wrong answer",Toast.LENGTH_SHORT).show();
             shakeAnimationCard();
-            score=score-1;
-            totalScore.setText("Heighest Score:"+score);
-            setHighestScoreFromLastRun();
+            deductPoints();
         }
     }
 
@@ -177,5 +193,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
+    }
+
+    @Override
+    protected void onPause() {
+        prefs.saveHighestScore(score.getScore());
+        prefs.setCurrentQuesState(currentQuestion);
+        super.onPause();
     }
 }
