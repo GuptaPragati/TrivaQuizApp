@@ -1,5 +1,6 @@
 package com.example.triviaquizapplication;
 
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -18,6 +19,7 @@ import com.example.triviaquizapplication.model.Question;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     CardView cardView;
@@ -25,8 +27,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ImageButton nextButton;
     Button True;
     TextView quesCounter;
+    TextView totalScore;
     TextView ques;
     Button False;
+    boolean flag=false;
+    int score=0;
     List<Question> questionList;
     int currentQuestion=0;
     @Override
@@ -37,9 +42,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         prevButton=findViewById(R.id.prev);
         nextButton=findViewById(R.id.next);
         quesCounter=findViewById(R.id.quesCounter);
+        totalScore=findViewById(R.id.score);
         ques=findViewById(R.id.quesns);
         True=findViewById(R.id.TRUE);
         False=findViewById(R.id.FALSE);
+        flag=false;
         questionList=new QuestionBank().getQuestions(new HandleQuestionBankAsysnCall() {
             @Override
             public void processfinished(ArrayList<Question> questionArrayList) {
@@ -48,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                ques.setText(questionArrayList.get(currentQuestion).getQuestion());
             }
         });
+        getHighestScoreFromLastRun();
         cardView.setOnClickListener(this);
         prevButton.setOnClickListener(this);
         nextButton.setOnClickListener(this);
@@ -55,26 +63,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         False.setOnClickListener(this);
     }
 
+    private void getHighestScoreFromLastRun() {
+        //if (Objects.nonNull(sharedPreferences)) {
+        SharedPreferences sharedPreferences=getSharedPreferences("Highscore",MODE_PRIVATE);
+            String highScore = sharedPreferences.getString("score", "Heighest Score:" + score);
+            totalScore.setText(highScore);
+        //}
+    }
+    private void setHighestScoreFromLastRun() {
+        SharedPreferences sharedPreferences=getSharedPreferences("Highscore",MODE_PRIVATE);
+        SharedPreferences.Editor editor=sharedPreferences.edit();
+        editor.putString("score","Heighest Score:"+score);
+        editor.apply();
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId())
         {
             case R.id.TRUE:
-                checkAnswer(true);
-                changeQuestion();
+                if (!flag) {
+                    checkAnswer(true);
+                    flag=true;
+                    changeQuestion();
+                }
                 break;
             case R.id.FALSE:
-                checkAnswer(false);
-                changeQuestion();
+                if (!flag) {
+                    checkAnswer(false);
+                    flag=true;
+                    changeQuestion();
+                }
                 break;
             case R.id.next:
                 currentQuestion= (currentQuestion+1)%questionList.size();
+                flag=false;
                 changeQuestion();
                 break;
             case R.id.prev:
                 if (currentQuestion>0)
                 {currentQuestion= (currentQuestion-1)%questionList.size();
-                changeQuestion();}
+                    changeQuestion();}
                 break;
         }
     }
@@ -90,10 +119,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             Toast.makeText(this,"Correct answer",Toast.LENGTH_SHORT).show();
             fadeAnimation();
+            score=score+1;
+            totalScore.setText("Heighest Score:"+score);
+            setHighestScoreFromLastRun();
         }
         else
         {Toast.makeText(this,"Wrong answer",Toast.LENGTH_SHORT).show();
-            shakeAnimationCard();}
+            shakeAnimationCard();
+            score=score-1;
+            totalScore.setText("Heighest Score:"+score);
+            setHighestScoreFromLastRun();
+        }
     }
 
     private void fadeAnimation()
